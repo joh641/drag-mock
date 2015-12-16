@@ -23,7 +23,7 @@ function webdriverExecuteAsync(self, script, parameters, callback) {
     script +
     ')(done);';
 
-  self.webdriver
+  return self.webdriver
     .timeoutsAsyncScript(WEBDRIVER_ASYNC_EXEC_TIMEOUT)
     .executeAsync(new Function('done', scriptBody), callback);
 }
@@ -71,10 +71,14 @@ EXPORT_METHODS.forEach(function(methodName) {
       args: args
     };
 
-    webdriverExecuteAsync(self, browserScript, parameters, function(err) {
-      // back in node.js context
-      callback(err, self);
-    });
+    webdriverExecuteAsync(self, browserScript, parameters)
+      .then(function() {
+        // back in node.js context
+        callback(null, self);
+      })
+      .catch(function(err) {
+        callback(err, self);
+      });
 
     return self;
   };
@@ -122,7 +126,7 @@ var webdriverBridge = {
   loadLibrary: function(webdriver, done) {
     var dragMockLib = fs.readFileSync(__dirname + '/../dist/drag-mock.js', { encoding: 'utf-8' });
 
-    webdriver.execute(dragMockLib, function (error) {
+    return webdriver.execute(dragMockLib, function (error) {
       if (typeof done === 'function') { done(error); }
     });
   }
