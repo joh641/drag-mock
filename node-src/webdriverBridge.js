@@ -9,7 +9,7 @@ var nextClientActionId = 1;
 
 
 // using this ugly hack, since selenium seems to not pass arguments given to the execute() method
-function webdriverExecuteAsync(self, script, parameters, callback) {
+function webdriverExecuteAsync(self, script, parameters) {
   var parameterAssignments = '';
 
   for (var paramName in parameters) {
@@ -25,7 +25,7 @@ function webdriverExecuteAsync(self, script, parameters, callback) {
 
   return self.webdriver
     .timeoutsAsyncScript(WEBDRIVER_ASYNC_EXEC_TIMEOUT)
-    .executeAsync(new Function('done', scriptBody), callback);
+    .executeAsync(new Function('done', scriptBody));
 }
 
 
