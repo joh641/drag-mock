@@ -24,7 +24,7 @@ function webdriverExecuteAsync(self, script, parameters) {
     ')(done);';
 
   return self.webdriver
-    .timeoutsAsyncScript(WEBDRIVER_ASYNC_EXEC_TIMEOUT)
+    .timeouts('script', WEBDRIVER_ASYNC_EXEC_TIMEOUT)
     .executeAsync(new Function('done', scriptBody));
 }
 
@@ -97,7 +97,10 @@ function extendWebdriverPrototype(webdriverPrototype) {
   }
 
   EXPORT_METHODS.forEach(function(methodName) {
-    webdriverPrototype[methodName] = createActionAndCallMethod(methodName);
+    webdriverPrototype.addCommand(
+      methodName,
+      createActionAndCallMethod(methodName)
+    );
   });
 }
 
@@ -107,7 +110,7 @@ function extendWebdriverFactory(webdriver) {
   webdriver.remote = function() {
     var instance = originalMethod.apply(webdriver, arguments);
 
-    extendWebdriverPrototype(instance.constructor.prototype);
+    extendWebdriverPrototype(instance);
     return instance;
   }
 }
@@ -119,7 +122,7 @@ var webdriverBridge = {
     if (webdriver.version && webdriver.remote) {
       extendWebdriverFactory(webdriver);
     } else {
-      extendWebdriverPrototype(webdriver.constructor.prototype);
+      extendWebdriverPrototype(webdriver);
     }
   },
 
